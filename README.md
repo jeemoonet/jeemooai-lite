@@ -1,5 +1,8 @@
 # 积木大脑-lite 智能平台本地化部署文档
 
+
+
+
 ![登录页](image-1.png)
 ![配置示意图](image.png)
 
@@ -9,6 +12,12 @@
 - Docker Compose ≥ v2.33.x
 
 🌍 官网地址：https://www.jeemoo.com
+
+<video width="640" height="360" controls>
+  <source src="https://openai-res.jeemoo.com/static/eb-video.mp4" type="video/mp4">
+  您的浏览器不支持视频标签。
+</video>
+
 
 GitHub仓库：https://github.com/zhana0/jeemooai-lite.git
 Gitee仓库：https://gitee.com/jeemoo_1/jeemooai-lite.git
