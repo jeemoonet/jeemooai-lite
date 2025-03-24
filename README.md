@@ -20,6 +20,7 @@
 
 
 GitHub仓库：https://github.com/zhana0/jeemooai-lite.git
+
 Gitee仓库：https://gitee.com/jeemoo_1/jeemooai-lite.git
 
 
