@@ -10,6 +10,10 @@
 
 🌍 官网地址：https://www.jeemoo.com
 
+GitHub仓库：https://github.com/zhana0/jeemooai-lite.git
+Gitee仓库：https://gitee.com/jeemoo_1/jeemooai-lite.git
+
+
 ## 端口配置
 ⚠️ **默认端口**
 ```yaml
