@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeemoo.system.mapper.AiCompanyMapper">
+
+    <resultMap type="com.jeemoo.system.domain.AiCompany" id="AiCompanyResult">
+        <result property="companyId" column="company_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="personMobile" column="person_mobile"/>
+        <result property="companyName" column="company_name"/>
+        <result property="industryType" column="industry_type"/>
+        <result property="employeeNum" column="employee_num"/>
+        <result property="positionName" column="position_name"/>
+        <result property="companyAddress" column="company_address"/>
+        <result property="licenseCode" column="license_code"/>
+        <result property="businessLicense" column="business_license"/>
+        <result property="organizationCodeCertificate" column="organization_code_certificate"/>
+        <result property="logo" column="logo"/>
+        <result property="companyDesc" column="company_desc"/>
+        <result property="personName" column="person_name"/>
+        <result property="deleted" column="deleted"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
+    </resultMap>
+    <update id="subIntegral">
+        update ai_company set integral = integral - #{integral},integral_total = integral_total + #{integral} where company_id = #{companyId}
+    </update>
+    <update id="subUsersCount">
+        UPDATE ai_company
+        SET user_count = user_count - (
+        SELECT COUNT(*)
+        FROM sys_user
+        WHERE sys_user.company_id = ai_company.company_id
+        AND user_id IN
+        <foreach collection="userIds" item="item" close=")" open="(" separator=",">
+            #{item}
+        </foreach>
+        GROUP BY company_id
+        )
+        WHERE company_id IN (
+        SELECT company_id
+        FROM sys_user
+        WHERE user_id IN
+        <foreach collection="userIds" item="item" close=")" open="(" separator=",">
+            #{item}
+        </foreach>
+        GROUP BY company_id
+        )
+
+    </update>
+    <update id="subDowcumentWordCount">
+        update ai_company set document_word_count = document_word_count - #{document.fileSize} where company_id = #{document.companyId}
+    </update>
+
+    <select id="page" resultType="com.jeemoo.system.domain.vo.AiCompanyVo">
+        select
+            a.*,
+            b.real_name as channel_real_name,
+            c.user_name,
+            c.nick_name
+        from ai_company a
+        left join ai_channel b on a.channel_sn = b.channel_sn
+        left join sys_user c on a.user_id = c.user_id
+        ${ew.getCustomSqlSegment}
+    </select>
+    <select id="countCompanySharedPrompt" resultType="java.lang.Integer">
+        select count(1) from ai_prompt where company_id = #{companyId} and deleted = 0 and prompt_id != #{promptId}
+        and (is_share = 1 or is_minprogram_share = 1 or is_robot_share = 1)
+    </select>
+
+
+</mapper>

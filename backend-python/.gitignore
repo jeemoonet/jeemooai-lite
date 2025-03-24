@@ -1,0 +1,16 @@
+# Python
+*.pyc
+__pycache__/
+venv/
+env/
+dist/
+build/
+.idea/
+*.egg-info/
+.db
+*.sqlite3
+
+# Flask
+instance/
+app.sqlite
+*.log

@@ -1,0 +1,30 @@
+# Maven
+target/
+
+# Gradle
+build/
+.gradle/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Logs
+log/
+logs/
+
+# Compiled class file
+*.class
+
+# Package files
+*.jar
+
+# Maven Wrapper
+mvnw
+mvnw.cmd
+.idea
+upload/**
+!upload/static/

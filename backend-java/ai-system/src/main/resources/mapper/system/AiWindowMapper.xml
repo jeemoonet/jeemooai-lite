@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeemoo.system.mapper.AiWindowMapper">
+
+    <resultMap type="com.jeemoo.system.domain.AiWindow" id="AiWindowResult">
+        <result property="windowId" column="window_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="windowName" column="window_name"/>
+        <result property="talkType" column="talk_type"/>
+        <result property="promptId" column="prompt_id"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="deleted" column="deleted"/>
+    </resultMap>
+    <select id="listByUser" resultType="com.jeemoo.system.param.WindowListResponse">
+        select
+        a.window_id,a.window_name,a.prompt_id,b.prompt_name,b.prompt_desc,b.prompt_icon,
+        ifnull(b.is_context,1) as is_context
+        from ai_window a
+        left join ai_prompt b on a.prompt_id = b.prompt_id
+        where a.deleted = 0 and a.user_id = #{loginUser.userId} and a.talk_type = #{talkType} and a.platform = #{platform}
+        <if test="filterWindowId != null and filterWindowId != 0">
+            and a.window_id != #{filterWindowId}
+        </if>
+        order by a.update_time desc
+    </select>
+    <select id="pageByCompany" resultType="com.jeemoo.system.param.CompanyWindowResponse">
+        select
+            w.window_id ,
+            w.talk_type ,
+            am.nickname as nick_name,
+            am.avatar ,
+            am.mobile ,
+            su.nick_name as user_nickname,
+            su.avatar as user_avatar,
+            w.user_id ,
+            w.prompt_id ,
+            ap.prompt_name ,
+            w.star,
+            w.create_time
+        from
+            ai_window w
+            left join ai_member am on
+            w.member_id = am.member_id
+            left join sys_user su on
+            w.user_id = su.user_id
+            left join ai_prompt ap on
+            w.prompt_id = ap.prompt_id
+        where
+            w.company_id = #{loginUser.companyId} and w.deleted = 0
+            <if test="param.talkType != null and param.talkType != ''">
+                and w.talk_type = #{param.talkType}
+            </if>
+            <if test="param.nickname != null and param.nickname != ''">
+                and am.nickname like concat('%',#{param.nickname},'%')
+            </if>
+            <if test="param.mobile != null and param.mobile != ''">
+                and am.mobile like concat('%',#{param.mobile},'%')
+            </if>
+            <if test="param.nickName != null and param.nickName != ''">
+                and am.nick_name like concat('%',#{param.nickName},'%')
+            </if>
+            <if test="param.promptName != null and param.promptName != ''">
+                and ap.prompt_name like concat('%',#{param.promptName},'%')
+            </if>
+        order by w.create_time desc
+    </select>
+    <select id="findOneFreeWindow" resultType="java.lang.Long">
+        select
+            window_id
+        from ai_window
+        where
+            user_id = #{userId} and talk_type = 0 and deleted = 0
+        <if test="promptId != null">
+            and prompt_id = #{promptId}
+        </if>
+        <if test="promptId == null">
+            and prompt_id is null
+        </if>
+        <if test="platform != null and platform != ''">
+            and platform = #{platform}
+        </if>
+        order by create_time desc limit 1
+    </select>
+
+
+</mapper>

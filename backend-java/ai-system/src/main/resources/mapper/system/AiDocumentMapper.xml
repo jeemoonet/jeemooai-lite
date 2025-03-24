@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeemoo.system.mapper.AiDocumentMapper">
+
+    <resultMap type="com.jeemoo.system.domain.AiDocument" id="AiDocumentResult">
+        <result property="documentId" column="document_id"/>
+        <result property="documentType" column="document_type"/>
+        <result property="documentName" column="document_name"/>
+        <result property="documentDesc" column="document_desc"/>
+        <result property="fileSize" column="file_size"/>
+        <result property="status" column="status"/>
+        <result property="pageNum" column="page_num"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="deleted" column="deleted"/>
+    </resultMap>
+    <select id="apiPage" resultType="com.jeemoo.system.domain.vo.AiDocumentVo">
+        select * from ai_document a where a.deleted = 0 and a.company_id = #{loginUser.companyId}
+        <if test="param.categoryId != null and param.categoryId != 0">
+            and a.category_id = #{param.categoryId}
+        </if>
+        <if test="param.status != null and param.status != 0">
+            and a.status = #{param.status}
+        </if>
+        <if test="param.keywords != null and param.keywords != ''">
+            and (a.document_name like concat('%',#{param.keywords},'%') or a.document_desc like concat('%',#{param.keywords},'%'))
+        </if>
+        order by a.create_time desc
+    </select>
+
+
+</mapper>

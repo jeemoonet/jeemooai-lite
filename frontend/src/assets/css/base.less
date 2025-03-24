@@ -1,0 +1,75 @@
+:root {
+  --jm-c-black: rgba(52,53,65,1);
+  --jm-c-text-light-1: #2c3e50;
+  --jm-bg-layout:rgba(68,70,84,1);
+  --jm-bg-layout-6:rgba(68,70,84,.6);
+  --jm-bg-footer:rgba(44, 45, 56,1);
+}
+
+
+.px2rem(@name, @px)
+{
+      @remSize: unit((@px / 75px), rem);
+      @{name}:@remSize
+}
+
+
+@functions: `(function() {
+  this.rem = function(size) {
+    return size / 75 + 'rem';
+  }
+})()`;
+
+.ant-image-preview-mask
+{
+    background-color: rgba(0, 0, 0, 0.7)!important;
+}
+
+.citation-preview {
+  background: #fff;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  box-shadow: 0px -4px 20px 0px rgba(218, 218, 247, 0.6);
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+  z-index: 9999;
+  cursor: pointer;
+  padding:18px 23px 0 20px;
+  text-decoration: none;
+}
+
+.preview-transition-zone {
+  background: transparent;
+  transition: background 0.2s;
+  cursor: pointer;
+
+}
+
+/* 保持提示框可见状态 */
+.citation-preview[data-visible] {
+  opacity: 1;
+}
+
+.citation-title{
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: normal;
+  color: #1D2129;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+}
+.citation-desc{
+  font-size: 14px;
+  font-weight: normal;
+  line-height: normal;
+  color: #9599A5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}

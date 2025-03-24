@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeemoo.system.mapper.AiRequestLogMapper">
+
+    <resultMap type="com.jeemoo.system.domain.AiRequestLog" id="AiRequestLogResult">
+        <result property="uuid" column="uuid"/>
+        <result property="userId" column="user_id"/>
+        <result property="key" column="key"/>
+        <result property="wordCount" column="word_count"/>
+        <result property="requestTime" column="request_time"/>
+        <result property="model" column="model"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="sendMessage" column="send_message"/>
+        <result property="receiveMessage" column="receive_message"/>
+        <result property="promptId" column="prompt_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
+    </resultMap>
+    <update id="setIntegral">
+        update ai_request_log set integral = #{integral} where uuid = #{uuid} and integral = 0
+    </update>
+    <select id="listPage" resultType="com.jeemoo.system.domain.vo.AiRequestLogVo">
+        select
+            a.*,
+            b.nick_name,
+            b.user_name,
+            b.phonenumber ,
+            c.company_name,
+            d.prompt_name
+        from ai_request_log a
+        left join sys_user b on a.user_id = b.user_id
+        left join ai_company c on a.company_id = c.company_id
+        left join ai_prompt d on a.prompt_id = d.prompt_id
+        where 1=1
+            <if test="bo.model != null and bo.model != ''">
+                and a.model = #{bo.model}
+            </if>
+            <if test="bo.nickName != null and bo.nickName != ''">
+                and b.nick_name like concat('%', #{bo.nickName},'%')
+            </if>
+            <if test="bo.companyName != null and bo.companyName != ''">
+                and c.company_name like concat('%',#{bo.companyName},'%')
+            </if>
+            <if test="bo.promptName != null and bo.promptName != ''">
+                and d.prompt_name like concat('%',#{bo.promptName},'%')
+            </if>
+            <if test="bo.status != null">
+                <if test="bo.status == 1">
+                    and a.error_message = ''
+                </if>
+                <if test="bo.status == 0">
+                    and a.error_message != ''
+                </if>
+            </if>
+            <if test="bo.rangeTime != null and bo.rangeTime.size() == 2">
+                and a.create_time between
+                <foreach item="item" collection="bo.rangeTime" open="" separator=" and " close="">
+                    #{item}
+                </foreach>
+            </if>
+            order by a.create_time desc
+    </select>
+    <select id="page" resultType="com.jeemoo.system.domain.vo.AiRequestLogVo">
+        select
+            a.uuid,
+            a.question,
+            a.receive_message,
+            a.error_message,
+            a.word_count,
+            a.request_time,
+            a.ip,a.user_agent,
+            a.create_time,
+            p.prompt_name,
+            concat(ifnull(su.nick_name,''),'/',ifnull(m.nickname,'')) as nick_name,
+            m.nickname as member_nickname
+        from ai_request_log a
+        left join ai_prompt p on a.prompt_id = p.prompt_id
+        left join sys_user su on a.user_id = su.user_id
+        left join ai_member m on a.member_id = m.member_id
+        where a.company_id = #{param.companyId}
+        <if test="param.nickName != null and param.nickName != ''">
+            and (su.nick_name like concat('%',#{param.nickName},'%') or m.nickname like concat('%',#{param.nickName},'%') )
+        </if>
+        <if test="param.promptName != null and param.promptName != ''">
+            and p.prompt_name like concat('%',#{param.promptName},'%')
+        </if>
+        order by a.create_time desc
+    </select>
+    <select id="list" resultType="com.jeemoo.system.domain.vo.AiRequestLogVo">
+        select
+        a.*,
+        b.nick_name,
+        b.user_name,
+        b.phonenumber ,
+        c.company_name,
+        d.prompt_name
+        from ai_request_log a
+        left join sys_user b on a.user_id = b.user_id
+        left join ai_company c on a.company_id = c.company_id
+        left join ai_prompt d on a.prompt_id = d.prompt_id
+        where 1=1
+        <if test="bo.model != null and bo.model != ''">
+            and a.model = #{bo.model}
+        </if>
+        <if test="bo.nickName != null and bo.nickName != ''">
+            and b.nick_name like concat('%', #{bo.nickName},'%')
+        </if>
+        <if test="bo.companyName != null and bo.companyName != ''">
+            and c.company_name like concat('%',#{bo.companyName},'%')
+        </if>
+        <if test="bo.promptName != null and bo.promptName != ''">
+            and d.prompt_name like concat('%',#{bo.promptName},'%')
+        </if>
+        <if test="bo.status != null">
+            <if test="bo.status == 1">
+                and a.error_message = ''
+            </if>
+            <if test="bo.status == 0">
+                and a.error_message != ''
+            </if>
+        </if>
+        <if test="bo.rangeTime != null and bo.rangeTime.size() == 2">
+            and a.create_time between
+            <foreach item="item" collection="bo.rangeTime" open="" separator=" and " close="">
+                #{item}
+            </foreach>
+        </if>
+        order by a.create_time desc
+    </select>
+
+
+</mapper>

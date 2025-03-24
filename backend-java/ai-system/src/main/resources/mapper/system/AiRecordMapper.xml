@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeemoo.system.mapper.AiRecordMapper">
+
+    <resultMap type="com.jeemoo.system.domain.AiRecord" id="AiRecordResult">
+        <result property="messageId" column="message_id"/>
+        <result property="windowId" column="window_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="content" column="content"/>
+        <result property="role" column="role"/>
+        <result property="isInitMessage" column="is_init_message"/>
+        <result property="isLike" column="is_like"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createTimestamp" column="create_timestamp"/>
+        <result property="masterUuid" column="master_uuid"/>
+        <result property="docInfo" column="doc_info"/>
+        <result property="deleted" column="deleted"/>
+    </resultMap>
+
+
+</mapper>

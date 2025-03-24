@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeemoo.system.mapper.ScientificMapper">
+
+
+    <select id="companyDayCount" resultType="cn.hutool.json.JSONObject">
+        select
+            DATE_FORMAT(create_time, '%Y-%m-%d') as date_str,
+            count(1) as num
+        from
+            ai_company
+        where 1 = 1
+        <if test="companyId != null">
+            and company_id = #{companyId}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and create_time between #{startTime} and #{endTime}
+        </if>
+        group by
+        date_str
+    </select>
+    <select id="userDayCount" resultType="cn.hutool.json.JSONObject">
+        select
+            count(DISTINCT user_id) as num,
+            DATE_FORMAT(create_time, '%Y-%m-%d') as date_str
+        from
+            ai_record
+        where 1 = 1
+        <if test="companyId != null">
+            and company_id = #{companyId}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and create_time between #{startTime} and #{endTime}
+        </if>
+        group by
+        date_str
+    </select>
+    <select id="windowDayCount" resultType="cn.hutool.json.JSONObject">
+        select
+            count(1) as num,
+            DATE_FORMAT(create_time, '%Y-%m-%d') as date_str
+        from
+            ai_window
+        where 1 = 1
+        <if test="companyId != null">
+            and company_id = #{companyId}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and create_time between #{startTime} and #{endTime}
+        </if>
+        group by
+        date_str
+    </select>
+    <select id="recordDayCount" resultType="cn.hutool.json.JSONObject">
+        select
+            count(1) as num,
+            DATE_FORMAT(create_time, '%Y-%m-%d') as date_str
+        from
+            ai_record
+        where 1 = 1
+        <if test="companyId != null">
+            and company_id = #{companyId}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and create_time between #{startTime} and #{endTime}
+        </if>
+        group by
+        date_str
+    </select>
+    <select id="companyTop" resultType="cn.hutool.json.JSONObject">
+        select
+            t1.company_id as id,
+            b.company_name as name,
+            t1.num
+        from
+        (
+            select
+                company_id,
+                count(1) as num
+            from
+                ai_request_log
+            where
+                company_id != 0
+            <if test="companyId != null">
+                and company_id = #{companyId}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and create_time between #{startTime} and #{endTime}
+            </if>
+            group by
+            company_id
+            order by
+            num desc
+            limit 10
+        ) t1
+        left join ai_company b on
+            t1.company_id = b.company_id
+    </select>
+    <select id="promptTop" resultType="cn.hutool.json.JSONObject">
+        select
+            t1.prompt_id as id,
+            b.prompt_name as name,
+            t1.num
+        from
+        (
+            select
+                prompt_id,
+                count(1) as num
+            from
+                ai_request_log
+            where
+                prompt_id is not null
+            <if test="companyId != null">
+                and company_id = #{companyId}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and create_time between #{startTime} and #{endTime}
+            </if>
+            group by
+            prompt_id
+            order by
+            num desc
+            limit 10
+        ) t1
+        left join ai_prompt b on
+            t1.prompt_id = b.prompt_id
+    </select>
+    <select id="modelTop" resultType="cn.hutool.json.JSONObject">
+        select
+            model as name,
+            count(1) as num
+        from
+            ai_request_log
+        where
+            prompt_id is not null
+        <if test="companyId != null">
+            and company_id = #{companyId}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and create_time between #{startTime} and #{endTime}
+        </if>
+        group by
+            model
+        order by
+            num desc
+        limit 10
+    </select>
+</mapper>

@@ -1,0 +1,304 @@
+@charset "UTF-8";
+
+#app {
+  height: 100%;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh !important;
+  background: #f5f6f8 !important;
+  transition: color 0.5s, background-color 0.5s !important;
+  line-height: 1.6 !important;
+  font-size: 15px !important;
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+::-webkit-scrollbar {
+  display: none;
+  width: 0px;
+  height: 0px;
+  color: transparent;
+}
+::-webkit-scrollbar-track {
+  display: none;
+  width: 0px;
+  height: 0px;
+  color: transparent;
+}
+
+/* 一行省略 */
+.one_line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+::selection {
+  background-color: #5657f6 !important;
+}
+
+::-moz-selection {
+  background-color: #5657f6 !important;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  font-weight: normal;
+  margin: 0;
+  padding: 0;
+}
+
+ul,
+ol,
+dl,
+dt,
+dd {
+  list-style: none;
+}
+
+fieldset,
+img {
+  border: 0;
+  /* background: #fcfcfc; */
+}
+
+a {
+  color: #000;
+}
+
+button,
+select {
+  /* font: 12px/1.5 tahoma, arial, sans-serif; */
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.clear {
+  clear: both;
+}
+
+.clearfix:after {
+  clear: both;
+  content: ".";
+  display: block;
+  height: 0;
+  line-height: 0;
+  visibility: hidden;
+  zoom: 1;
+}
+
+/*Vue渲染时，清除{{}}显示*/
+[v-cloak] {
+  display: none;
+}
+
+/*a*/
+a {
+  text-decoration: none;
+}
+
+input[type="button"],
+input[type="submit"] {
+  outline: none;
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+
+button {
+  outline: none;
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+
+select {
+  background-color: transparent;
+  border-color: transparent;
+  -webkit-appearance: none;
+}
+
+/* 设置滚动条的样式 */
+.RemoveScrollbar::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
+/* 滚动槽 */
+.RemoveScrollbar::-webkit-scrollbar-track {
+  height: 0;
+}
+
+/*清除IOS overflow:scroll与overflow:auto 的滚动卡顿*/
+.RemoveRollCar {
+  -webkit-overflow-scrolling: touch;
+}
+
+/*两行省略*/
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/*一行省略*/
+.one_line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.more_line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.three_line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+textarea {
+  resize: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  margin: 3px 3px 0px 5px;
+  display: none;
+}
+
+img,
+input {
+  border: none;
+  outline: none;
+  -webkit-appearance: none;
+  /*去除系统默认的样式*/
+  -webkit-tap-highlight-color: transparent;
+  /* 点击高亮的颜色*/
+}
+
+.ico {
+  pointer-events: none;
+}
+
+p {
+  line-height: 1.2;
+  -webkit-margin-before: 0em;
+  -webkit-margin-after: 0em;
+  -webkit-margin-start: 0rem;
+  -webkit-margin-end: 0rem;
+}
+
+* {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.iconcenter {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+}
+
+.float {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.all {
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+}
+
+.fixed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  top: 0;
+  right: 0;
+}
+
+::-webkit-input-placeholder {
+  /* WebKit browsers */
+  color: #999999;
+}
+
+:-moz-placeholder {
+  /* Mozilla Firefox 4 to 18 */
+  color: #999999;
+}
+
+::-moz-placeholder {
+  /* Mozilla Firefox 19+ */
+  color: #999999;
+}
+
+:-ms-input-placeholder {
+  /* Internet Explorer 10+ */
+  color: #999999;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  display: none;
+}
+
+.RemoveRollCar,
+.rr {
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bg {
+  display: block;
+  background-size: 100% 100%;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+}
+
+.headerMenuPadding {
+  padding-top: 65px;
+}
+
+.ant-btn-primary:focus {
+  border-color: #5657f6;
+  background: #5657f6;
+}

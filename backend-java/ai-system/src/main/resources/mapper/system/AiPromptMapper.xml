@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeemoo.system.mapper.AiPromptMapper">
+
+    <resultMap type="com.jeemoo.system.domain.AiPrompt" id="AiPromptResult">
+        <result property="promptId" column="prompt_id"/>
+        <result property="promptName" column="promptName"/>
+        <result property="promptDesc" column="prompt_desc"/>
+        <result property="promptType" column="prompt_type"/>
+        <result property="promptIcon" column="prompt_icon"/>
+        <result property="userId" column="user_id"/>
+        <result property="initPrompt" column="init_prompt"/>
+        <result property="initMessage" column="init_message"/>
+        <result property="isPublic" column="is_public"/>
+        <result property="useNum" column="use_num"/>
+        <result property="model" column="model"/>
+        <result property="maxTokens" column="max_tokens"/>
+        <result property="temperature" column="temperature"/>
+        <result property="sortNumber" column="sort_number"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="deleted" column="deleted"/>
+        <result property="themeColor" column="theme_color" />
+    </resultMap>
+
+    <sql id="field">
+        a.prompt_id,
+        a.prompt_name,
+        a.prompt_icon,
+        a.prompt_desc,
+        a.use_num,
+        a.prompt_type,
+        a.category_id,
+        a.is_recommend,
+        a.is_new,
+        a.img_url,
+        a.background,
+        a.voice,
+        a.is_minprogram_share,
+        a.is_robot_share
+    </sql>
+
+    <update id="setStatus">
+        update ai_prompt set status = #{status}
+        <if test="status == 1">
+            ,is_public = 1
+        </if>
+        where prompt_id = #{promptId}
+    </update>
+    <insert id="recent">
+        INSERT INTO ai_recent (user_id, prompt_id, create_timestamp)
+        VALUES (#{userId}, #{promptId}, UNIX_TIMESTAMP())
+        ON DUPLICATE KEY UPDATE create_timestamp = UNIX_TIMESTAMP()
+    </insert>
+    <select id="listPage" resultType="com.jeemoo.system.domain.vo.AiPromptVo">
+        select a.*,b.user_name,b.nick_name,c.company_name,d.category_name from ai_prompt a
+            left join sys_user b on a.user_id = b.user_id
+            left join ai_company c on a.company_id = c.company_id
+            left join ai_prompt_category d on a.category_id = d.category_id
+        where a.deleted = 0
+        <if test="bo.promptName != null and bo.promptName != ''">
+            and a.prompt_name like concat('%',#{bo.promptName},'%')
+        </if>
+        <if test="bo.companyName != null and bo.companyName != ''">
+            and c.company_name like concat('%',#{bo.companyName},'%')
+        </if>
+        <if test="bo.promptDesc != null and bo.promptDesc != ''">
+            and a.prompt_desc like concat('%',#{bo.promptDesc},'%')
+        </if>
+        <if test="bo.model != null and bo.model != ''">
+            and a.model like concat('%',#{bo.model},'%')
+        </if>
+        order by a.create_time desc
+    </select>
+    <select id="companyPromptPage" resultType="com.jeemoo.system.param.CompanyPromptResponse">
+        select
+            a.prompt_id,
+            a.is_public,
+            a.theme_color,
+            a.is_recommend,
+            if(a.is_share=1 or a.is_minprogram_share=1 or a.is_robot_share=1, 1, 0) as is_share,
+            a.init_prompt,
+            a.prompt_name,
+            a.prompt_icon,
+            a.img_url,
+            a.background,
+            a.voice,
+            a.is_minprogram_share,
+            a.is_robot_share,
+            a.status,
+            a.create_time,
+            su.nick_name as create_by
+        from ai_prompt a
+        left join sys_user su on a.user_id = su.user_id
+        where a.company_id = #{param.companyId} and a.deleted = 0
+        <if test="param.promptName != null and param.promptName != ''">
+            and a.prompt_name like concat('%',#{param.promptName},'%')
+        </if>
+        <if test="param.isShare != null">
+            <if test="param.isShare == 1">
+                and (a.is_share = 1 or a.is_minprogram_share = 1 or a.is_robot_share = 1)
+            </if>
+            <if test="param.isShare == 0">
+                and a.is_share = 0 and a.is_minprogram_share = 0 and a.is_robot_share = 0
+            </if>
+        </if>
+        <if test="param.isPublic != null">
+            and a.is_public = #{param.isPublic}
+        </if>
+        <if test="param.status != null">
+            and a.status = #{param.status}
+        </if>
+        <if test="param.createBy != null and param.createBy != ''">
+            and su.nick_name like concat('%',#{param.createBy},'%')
+        </if>
+        order by a.create_time desc
+    </select>
+    <select id="options" resultType="cn.hutool.json.JSONObject">
+        select a.prompt_id,concat(a.prompt_name,' - ',b.company_name) as prompt_name from ai_prompt a left join ai_company b on a.company_id = b.company_id
+        where a.deleted = 0
+        <if test="bo != null">
+            <if test="bo.companyId != null">
+                and a.company_id = #{bo.companyId}
+            </if>
+        </if>
+        order by a.create_time
+    </select>
+    <select id="chatSelect" resultType="com.jeemoo.system.param.PromptListResponse">
+        select
+            a.prompt_id,
+            a.category_id,
+            a.prompt_name,
+            a.prompt_icon,
+            if(a.user_id = #{userId}, 1, 0) AS is_my
+        from ai_prompt a
+        where a.company_id = #{companyId} and a.deleted = 0
+        and (a.user_id = #{userId} or (a.status = 1 and a.is_public = 1))
+    </select>
+
+    <select id="search" resultType="com.jeemoo.system.param.PromptListResponse">
+        select
+        <include refid="field" />
+        from ai_prompt a
+        where a.deleted = 0 and a.is_public = 1 and a.status = 1 and a.company_id = #{companyId}
+        <if test="keywords != null and keywords != ''">
+            and (a.prompt_name like concat('%',#{keywords},'%') or a.prompt_desc like concat('%',#{keywords},'%'))
+        </if>
+        order by a.create_time desc
+    </select>
+    <select id="apiPage" resultType="com.jeemoo.system.param.PromptListResponse">
+        select a.*,
+        if(a.is_share=1 or a.is_minprogram_share=1 or a.is_robot_share=1 or a.is_digit_person_share=1, 1, 0) as publish_state,
+        b.nick_name, b.avatar from ai_prompt a
+        left join sys_user b on a.user_id = b.user_id
+        where a.deleted = 0 and a.company_id = #{param.companyId}
+        <if test="param.isManager == 0">
+            and a.user_id = #{param.userId}
+        </if>
+        <if test="param.categoryId != null and param.categoryId != 0">
+            and a.category_id = #{param.categoryId}
+        </if>
+        <if test="param.keywords != null and param.keywords != ''">
+            and (a.prompt_name like concat('%',#{param.keywords},'%') or a.prompt_desc like concat('%',#{param.keywords},'%'))
+        </if>
+        order by a.create_time desc
+    </select>
+</mapper>

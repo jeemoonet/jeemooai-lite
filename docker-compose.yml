@@ -1,0 +1,161 @@
+# 定义网络
+networks:
+  project-network:
+    driver: bridge
+
+# 定义服务
+services:
+  # 前端构建服务
+  frontend-build:
+    image: node:16
+    container_name: frontend-build
+    networks:
+      - project-network
+    volumes:
+      - ./frontend:/app
+    environment:
+      API_HOST: http://localhost:8080
+    working_dir: /app
+    command: sh -c "npm install --force && npm run build"
+    depends_on:
+      - backend-java
+      - backend-python
+
+  # Nginx 服务
+  nginx:
+    image: nginx:1.21
+    container_name: nginx
+    restart: unless-stopped
+    networks:
+      - project-network
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html # 挂载前端构建后的静态文件
+      - ./api.conf:/etc/nginx/conf.d/api.conf # 挂载 Nginx 配置文件
+      - ./default.conf:/etc/nginx/conf.d/default.conf # 挂载 Nginx 配置文件
+      - ./logs/nginx:/var/log/nginx # 挂载 Nginx 日志目录
+    ports:
+      - "80:80" # 前端
+      - "8080:8080" # 后端
+    depends_on:
+      - frontend-build
+
+  # 后端 Java 服务
+  backend-java:
+    build:
+      context: ./backend-java
+      dockerfile: Dockerfile
+    container_name: backend-java
+    restart: unless-stopped
+    networks:
+      - project-network
+    volumes:
+      - ./backend-java:/app
+      - ./logs/backend-java:/logs
+      - ./upload:/upload
+    environment:
+      MYSQL_DATABASE: jeemoo_ai_lite 
+      MYSQL_USER: root
+      MYSQL_PASSWORD: jeemoo_ai_pw
+      API_HOST: http://localhost:8080
+      ACTIVEMQ_ADMIN_USER: admin
+      ACTIVEMQ_ADMIN_PASSWORD: admin
+      ELASTIC_USER: elastic
+      ELASTIC_PASSWORD: elastic
+    # ports:
+    #   - "8081:8081"
+    depends_on:
+      - mysql
+      - redis
+      - elasticsearch
+      - activemq
+
+  # 后端 Python 服务
+  backend-python:
+    build:
+      context: ./backend-python
+      dockerfile: ./docker/Dockerfile
+    container_name: backend-python
+    restart: unless-stopped
+    networks:
+      - project-network
+    volumes:
+      - ./backend-python:/app
+      - ./logs/backend-python:/app/logs
+      - ./upload:/app/upload
+    environment:
+      MYSQL_DATABASE: jeemoo_ai_lite 
+      MYSQL_USER: root
+      MYSQL_PASSWORD: jeemoo_ai_pw
+      API_HOST: http://localhost:8080
+      ACTIVEMQ_ADMIN_USER: admin
+      ACTIVEMQ_ADMIN_PASSWORD: admin
+      ELASTIC_USER: elastic
+      ELASTIC_PASSWORD: elastic
+    # ports:
+    #   - "5000:5000"
+    depends_on:
+      - mysql
+      - redis
+      - elasticsearch
+      - activemq
+
+  # MySQL 服务
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    restart: unless-stopped
+    networks:
+      - project-network
+    volumes:
+      - ./mysql/data:/var/lib/mysql # 挂载 MySQL 数据目录
+      - ./mysql/init:/docker-entrypoint-initdb.d # 挂载初始化 SQL 脚本目录
+    environment:
+      MYSQL_ROOT_PASSWORD: jeemoo_ai_pw # 设置 MySQL 根密码
+      MYSQL_DATABASE: jeemoo_ai_lite # 设置默认数据库
+    # ports:
+    #   - "3306:3306" # 对外开放 MySQL 端口
+
+  # Redis 服务
+  redis:
+    image: redis:6.0
+    container_name: redis
+    restart: unless-stopped
+    networks:
+      - project-network
+    volumes:
+      - ./redis/data:/data # 挂载 Redis 数据目录
+    # ports:
+    #   - "6379:6379" # 对外开放 Redis 端口
+
+
+  # Elasticsearch 服务
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.3
+    container_name: elasticsearch
+    restart: unless-stopped
+    networks:
+      - project-network
+    # volumes:
+    #   - ./elasticsearch/data:/usr/share/elasticsearch/data # 挂载 Elasticsearch 数据目录
+    #   - ./elasticsearch/config:/usr/share/elasticsearch/config # 挂载 Elasticsearch 配置目录
+    environment:
+      discovery.type: single-node # 单节点模式
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m" # 设置 JVM 内存
+      ELASTIC_PASSWORD: elastic # 设置 Elasticsearch 密码
+    # ports:
+    #   - "9200:9200" # 对外开放 Elasticsearch 端口
+    #   - "9300:9300" # 对外开放 Elasticsearch 节点通信端口
+
+  # Apache ActiveMQ 服务
+  activemq:
+    image: rmohr/activemq
+    container_name: activemq
+    restart: unless-stopped
+    networks:
+      - project-network
+    # ports:
+    #   - "8161:8161" # 对外开放 ActiveMQ 管理界面端口
+    #   - "61616:61616" # 对外开放 ActiveMQ 消息队列端口
+    environment:
+      ACTIVEMQ_ADMIN_USER: admin # 设置 ActiveMQ 管理用户
+      ACTIVEMQ_ADMIN_PASSWORD: admin # 设置 ActiveMQ 管理密码

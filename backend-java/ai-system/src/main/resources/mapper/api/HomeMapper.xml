@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeemoo.api.mapper.HomeMapper">
+
+    <sql id="field">
+        a.prompt_id,
+        a.prompt_name,
+        a.prompt_icon,
+        a.prompt_desc,
+        a.use_num,
+        a.prompt_type,
+        a.category_id,
+        a.is_recommend,
+        a.is_new,
+        a.img_url,
+        a.background,
+        a.voice,
+        a.is_minprogram_share,
+        a.is_robot_share
+    </sql>
+
+    <select id="recommendList" resultType="com.jeemoo.system.param.PromptListResponse">
+        select
+        <include refid="field" />
+        from ai_prompt a
+        where a.is_public = 1 and a.status = 1 and a.is_recommend = 1 and deleted = 0 and a.company_id = #{loginUser.companyId}
+        order by a.create_time desc
+    </select>
+    <select id="promptPage" resultType="com.jeemoo.system.param.PromptListResponse">
+        select
+        <include refid="field" />
+        from ai_prompt a
+        where a.deleted = 0 and (a.is_public = 1 or a.user_id = #{userId}) and a.status = 1 and a.company_id = #{param.companyId}
+        <if test="param.categoryId != null and param.categoryId != 0">
+            and a.category_id = #{param.categoryId}
+        </if>
+        <if test="param.isRecommend != null">
+            and a.is_recommend = #{param.isRecommend}
+        </if>
+        <if test="param.keywords != null and param.keywords != ''">
+            and (a.prompt_name like concat('%',#{param.keywords},'%') or a.prompt_desc like concat('%',#{param.keywords},'%'))
+        </if>
+        order by a.create_time desc
+    </select>
+    <select id="recent" resultType="com.jeemoo.system.param.PromptListResponse">
+        SELECT
+        <include refid="field" />
+        from
+            ai_recent b left join ai_prompt a on b.prompt_id = a.prompt_id
+        where
+            a.deleted = 0 and a.is_public = 1 and a.status = 1 and a.company_id = #{companyId}
+            and b.user_id = #{userId}
+        order by b.create_timestamp desc
+    </select>
+    <select id="dayIntegral" resultType="cn.hutool.json.JSONObject">
+        select
+            sum(a.integral) as integral,
+            DATE_FORMAT(a.create_time,'%Y-%m-%d') as dateStr
+        from ai_request_log a
+        where a.company_id =#{companyId} and a.create_time between #{startTime} and #{endTime}
+        group by dateStr order by dateStr asc
+
+    </select>
+    <select id="appDayIntegral" resultType="cn.hutool.json.JSONObject">
+        select
+            sum(a.integral) as integral,
+            DATE_FORMAT(a.create_time,'%Y-%m-%d') as dateStr
+        from ai_app_request_log a
+        left join ai_app_user b on a.openid = b.openid
+        where b.company_id = #{companyId} and a.create_time  BETWEEN #{startTime} and #{endTime}
+        group by dateStr
+        order by dateStr asc
+    </select>
+    <select id="promptTop" resultType="cn.hutool.json.JSONObject">
+        select t1.prompt_id as promptId, t1.integral,b.prompt_name as promptName from (
+       select sum(a.integral) as integral, a.prompt_id from ai_request_log a
+                                                       where a.company_id = #{companyId}
+                                                        and a.create_time between #{startTime} and #{endTime}
+       group by a.prompt_id
+       order by integral desc
+       limit 10 ) t1 join ai_prompt b on t1.prompt_id = b.prompt_id
+
+    </select>
+    <select id="userTop" resultType="cn.hutool.json.JSONObject">
+        select t1.user_id as userId,t1.integral,b.nick_name as userName from (
+         select sum(a.integral) as integral, a.user_id from ai_request_log a where a.company_id = #{companyId}
+                                                                               and a.create_time between #{startTime} and #{endTime}
+         group by a.user_id
+         order by integral desc
+         limit 10 ) t1 join sys_user b on t1.user_id = b.user_id
+
+    </select>
+    <select id="repositoryRecommend" resultType="cn.hutool.json.JSONObject">
+        select
+            id,
+            prompt_icon as promptIcon,
+            prompt_name as promptName
+        from ai_prompt_repository
+        where is_recommend = 1 and status = 1 order by create_time desc limit 18
+    </select>
+    <select id="repositoryAll" resultType="cn.hutool.json.JSONObject">
+        select id,prompt_icon as promptIcon,prompt_name as promptName,b.category_name as categoryName,
+        a.category_id as categoryId,b.sort_num as sortNum
+        from ai_prompt_repository a left join ai_repository_category b on a.category_id = b.category_id
+        where a.status = 1 and a.category_id is not null and a.category_id != 0
+        order by a.create_time desc
+    </select>
+    <select id="promptWindowCount" resultType="cn.hutool.json.JSONObject">
+        select
+            count(1) as `count`,
+            DATE_FORMAT(create_time, '%Y-%m-%d') as dateStr
+        from
+            ai_window
+        WHERE
+            company_id = #{companyId}
+            <if test="promptId != null">
+                and prompt_id = #{promptId}
+            </if>
+        and create_time  BETWEEN #{startTime} and #{endTime}
+        group by
+            dateStr
+        order by
+            dateStr
+    </select>
+    <select id="promptQuestionCount" resultType="cn.hutool.json.JSONObject">
+        select
+            count(1) as `count`,
+            DATE_FORMAT(create_time, '%Y-%m-%d') as dateStr
+        from
+            ai_record
+        WHERE
+            role = 'user'
+            and company_id = #{companyId}
+        and create_time  BETWEEN #{startTime} and #{endTime}
+        <if test="promptId != null">
+            and prompt_id = #{promptId}
+        </if>
+        group by
+            dateStr
+        order by
+            dateStr
+    </select>
+    <select id="promptGradeCount" resultType="cn.hutool.json.JSONObject">
+        select
+            count(1) as `count`,
+            star
+        from
+            ai_window_stars
+        where
+            company_id = #{companyId}
+        and create_time  BETWEEN #{startTime} and #{endTime}
+        <if test="promptId != null">
+            and prompt_id = #{promptId}
+        </if>
+        group by
+            star
+    </select>
+</mapper>
