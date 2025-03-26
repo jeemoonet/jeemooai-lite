@@ -13,11 +13,7 @@
 
 🌍 官网地址：https://www.jeemoo.com
 
-<video width="640" height="360" controls>
-  <source src="https://openai-res.jeemoo.com/static/eb-video.mp4" type="video/mp4">
-  您的浏览器不支持视频标签。
-</video>
-
+<video src="https://openai-res.jeemoo.com/static/eb-video.mp4"></video>
 
 GitHub仓库：https://github.com/jeemoonet/jeemooai-lite.git
 
