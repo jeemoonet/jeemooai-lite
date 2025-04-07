@@ -142,6 +142,8 @@ services:
       discovery.type: single-node # 单节点模式
       ES_JAVA_OPTS: "-Xms512m -Xmx512m" # 设置 JVM 内存
       ELASTIC_PASSWORD: elastic # 设置 Elasticsearch 密码
+      xpack.security.http.ssl.enabled: "false" # 禁用 HTTPS
+      xpack.security.transport.ssl.enabled: "false" # 禁用节点间 SSL
     # ports:
     #   - "9200:9200" # 对外开放 Elasticsearch 端口
     #   - "9300:9300" # 对外开放 Elasticsearch 节点通信端口

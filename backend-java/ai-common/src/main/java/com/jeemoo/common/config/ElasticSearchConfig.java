@@ -36,7 +36,7 @@ public class ElasticSearchConfig {
 
         // 创建 RestClient 构建器
         RestClientBuilder builder = RestClient.builder(
-                        new HttpHost(serverUrl, port, "https"))
+                        new HttpHost(serverUrl, port, "http"))
                 .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
                     @Override
                     public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
